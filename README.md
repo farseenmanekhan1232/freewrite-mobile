@@ -1,5 +1,5 @@
 ## freewrite mobile
-@farzaa's freewrite ported from swift to expo react native 
+[farzaa](https://github.com/farzaa/freewrite)'s freewrite ported from swift to expo react native 
 
 dropping on appstore and playstore 
 
