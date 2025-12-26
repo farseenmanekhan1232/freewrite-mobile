@@ -10,52 +10,36 @@ Prerequisites:
 - [x] Google Play Console Account connected
 - [x] `app.json` configured with Bundle ID: `com.farseen.freewrite`
 
-## 1. Install EAS CLI
-If you haven't already:
+## 🚀 Fast Deployment (Better DX)
+
+We've set up two shortcuts depending on what you changed:
+
+### 1. Instant Code Push (`npm run push`)
+**Use this when:** You only changed JavaScript/TypeScript code, Styles, or Assets.
+**What it does:** Instantly updates the app on user devices (and TestFlight/Internal) without a full rebuild.
+**Time:** ~1 minute.
+
 ```bash
-npm install -g eas-cli
+npm run push
 ```
 
-## 2. Login to EAS
+### 2. Full Native Release (`npm run deploy`)
+**Use this when:** You added new native packages (runs `npm install`), changed `app.json`, or want a fresh Store release.
+**What it does:** Builds new binaries (.ipa/.aab) and submits them to stores.
+**Time:** ~20 minutes.
+
 ```bash
-eas login
+npm run deploy
 ```
 
-## 3. configure Project
-Initialize the project with your Expo account:
-```bash
-eas build:configure
-```
-*(Select 'All' when asked for platforms)*
+---
 
-## 4. Build for Production
+## Technical Details
 
-### iOS (App Store)
-```bash
-eas build --platform ios --profile production
-```
-- This will prompt you to log in to your Apple Developer account.
-- It will automatically generate Distribution Certificates and Provisioning Profiles.
+### EAS Update
+Your app is configured with `expo-updates`. Changes are pushed to the `production` branch and downloaded by apps running a compatible runtime version.
 
-### Android (Play Store)
-```bash
-eas build --platform android --profile production
-```
-- This will generate an AAB (Android App Bundle) file.
-- It will create a Keystore for you automatically on the first run.
-
-## 5. Submit to Stores
-
-### iOS
-Once the build is complete:
-```bash
-eas submit -p ios
-```
-- You'll need to create an app entry on **App Store Connect** first with the Bundle ID `com.farseen.freewrite`.
-
-### Android
-Once the build is complete:
-```bash
-eas submit -p android
-```
-- You'll need to create an app entry on **Google Play Console** first and manually upload the **first** AAB manually to establish the signing key. Subsequent updates can be done via CLI.
+### Build & Submit
+The `deploy` command runs:
+`eas build --platform all --profile production --auto-submit`
+This handles versioning automatically via `autoIncrement` settings.

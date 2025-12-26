@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect } from 'react';
@@ -26,11 +26,14 @@ function MainContent() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <KeyboardAvoidingView 
+      style={[styles.container, { backgroundColor: theme.background }]} 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
       <TextEditor bottomPadding={80} />
       <BottomNav />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

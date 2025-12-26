@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "freewrite-mobile",
+    "name": "freewrite",
     "slug": "freewrite-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -35,6 +35,12 @@
       "eas": {
         "projectId": "3a0055f1-83f1-4e2a-84f8-3ab8d12907a1"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3a0055f1-83f1-4e2a-84f8-3ab8d12907a1"
     }
   }
 }
