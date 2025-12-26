@@ -65,21 +65,23 @@ export const Timer: React.FC<TimerProps> = ({ onTimerRunningChange }) => {
         </Text>
       </TouchableOpacity>
       
-      {/* Time adjustment buttons */}
-      <View style={styles.adjustButtons}>
-        <TouchableOpacity 
-          onPress={() => adjustTime('down')}
-          style={styles.adjustButton}
-        >
-          <Minus size={14} color={theme.textSecondary} strokeWidth={2} />
-        </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={() => adjustTime('up')}
-          style={styles.adjustButton}
-        >
-          <Plus size={14} color={theme.textSecondary} strokeWidth={2} />
-        </TouchableOpacity>
-      </View>
+      {/* Time adjustment buttons - hidden when timer is running */}
+      {!isRunning && (
+        <View style={styles.adjustButtons}>
+          <TouchableOpacity 
+            onPress={() => adjustTime('down')}
+            style={styles.adjustButton}
+          >
+            <Minus size={14} color={theme.textSecondary} strokeWidth={2} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => adjustTime('up')}
+            style={styles.adjustButton}
+          >
+            <Plus size={14} color={theme.textSecondary} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

@@ -12,7 +12,7 @@ export interface Entry {
 
 export interface Settings {
   fontSize: number;
-  fontFamily: string;
+  fontFamily: string | undefined;
   colorScheme: 'light' | 'dark';
   backspaceDisabled: boolean;
 }

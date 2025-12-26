@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   StyleSheet, 
   ScrollView,
-  Animated,
   LayoutAnimation,
   Platform,
   UIManager,
@@ -40,16 +39,7 @@ export const BottomNav: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [opacity] = useState(new Animated.Value(1));
 
-  // Fade out nav when timer is running
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: timerRunning ? 0.3 : 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [timerRunning, opacity]);
 
   const toggleExpanded = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -69,13 +59,12 @@ export const BottomNav: React.FC = () => {
   );
 
   return (
-    <Animated.View 
+    <View 
       style={[
         styles.container, 
         { 
           backgroundColor: theme.background,
           borderColor: theme.border,
-          opacity,
         },
         expanded && styles.containerExpanded
       ]}
@@ -86,7 +75,7 @@ export const BottomNav: React.FC = () => {
           Let's put Expanded Content first in DOM if using flex-col-reverse, or just use View ordering.
       */}
       
-      {expanded && (
+      {expanded && !timerRunning && (
         <View style={[styles.expandedContent, { borderBottomColor: theme.border }]}>
           <ScrollView 
             horizontal 
@@ -133,47 +122,50 @@ export const BottomNav: React.FC = () => {
       )}
 
       {/* Main Bar (Primary Actions) */}
-      <View style={styles.mainBar}>
-        <View style={styles.timerWrapper}>
+      <View style={[styles.mainBar, timerRunning && styles.mainBarFocused]}>
+        <View style={[styles.timerWrapper, timerRunning && styles.timerWrapperFocused]}>
           <Timer onTimerRunningChange={setTimerRunning} />
+          {timerRunning && (
+            <Text style={[styles.tapToStopText, { color: theme.textSecondary }]}>
+              tap to stop
+            </Text>
+          )}
         </View>
 
-        <View style={styles.primaryActions}>
-          <ActionButton onPress={() => setShowChatMenu(true)}>
-            <MessageSquare size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
-          </ActionButton>
+        {!timerRunning && (
+          <View style={styles.primaryActions}>
+            <ActionButton onPress={() => setShowChatMenu(true)}>
+              <MessageSquare size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+            </ActionButton>
 
-          <ActionButton onPress={createNewEntry}>
-             <Plus size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
-          </ActionButton>
+            <ActionButton onPress={createNewEntry}>
+               <Plus size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+            </ActionButton>
 
-          <ActionButton onPress={() => setShowSidebar(true)}>
-            <History size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
-          </ActionButton>
+            <ActionButton onPress={() => setShowSidebar(true)}>
+              <History size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+            </ActionButton>
 
-          <ActionButton onPress={toggleExpanded} active={expanded}>
-            {expanded ? (
-              <ChevronDown size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
-            ) : (
-              <MoreHorizontal size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
-            )}
-          </ActionButton>
-        </View>
+            <ActionButton onPress={toggleExpanded} active={expanded}>
+              {expanded ? (
+                <ChevronDown size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+              ) : (
+                <MoreHorizontal size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+              )}
+            </ActionButton>
+          </View>
+        )}
       </View>
 
       {/* Modals */}
       <ChatMenu visible={showChatMenu} onClose={() => setShowChatMenu(false)} />
       <EntrySidebar visible={showSidebar} onClose={() => setShowSidebar(false)} />
-    </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingBottom: 20, // Safe area
     elevation: 8,
@@ -193,8 +185,20 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     height: 60,
   },
+  mainBarFocused: {
+    justifyContent: 'flex-start',
+  },
   timerWrapper: {
     flex: 1,
+  },
+  timerWrapperFocused: {
+    flex: 0,
+    alignItems: 'flex-start',
+  },
+  tapToStopText: {
+    fontSize: 11,
+    opacity: 0.6,
+    marginTop: 2,
   },
   primaryActions: {
     flexDirection: 'row',

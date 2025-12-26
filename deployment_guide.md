@@ -10,26 +10,44 @@ Prerequisites:
 - [x] Google Play Console Account connected
 - [x] `app.json` configured with Bundle ID: `com.farseen.freewrite`
 
-## 🚀 Fast Deployment (Better DX)
-
-We've set up two shortcuts depending on what you changed:
+## 🚀 Fast Deployment
 
 ### 1. Instant Code Push (`npm run push`)
-**Use this when:** You only changed JavaScript/TypeScript code, Styles, or Assets.
-**What it does:** Instantly updates the app on user devices (and TestFlight/Internal) without a full rebuild.
-**Time:** ~1 minute.
-
+**Use this for:** JS code, Styles, Assets. (Updates instantly, no review).
 ```bash
 npm run push
 ```
 
-### 2. Full Native Release (`npm run deploy`)
-**Use this when:** You added new native packages (runs `npm install`), changed `app.json`, or want a fresh Store release.
-**What it does:** Builds new binaries (.ipa/.aab) and submits them to stores.
-**Time:** ~20 minutes.
+---
 
+## 🏗️ Native Builds (App Store / Play Store)
+
+### Option A: Cloud Build (Easiest)
+Runs on Expo servers. Free plan has limits/queues.
 ```bash
 npm run deploy
+```
+
+### Option B: Local Build (Unlimited)
+Runs on your Mac. Requires Xcode (iOS) and Android Studio (Android).
+**Prerequisites:**
+- **iOS:** install Xcode + Command Line Tools.
+- **Android:** install Android Studio + NDK/SDK.
+
+**Step 1: Build Locally**
+```bash
+npm run deploy:local
+```
+This generates `.ipa` and `.aab` files on your computer.
+
+**Step 2: Submit to Stores**
+After the files are built:
+```bash
+# Submit iOS
+eas submit -p ios --path path/to/your.ipa
+
+# Submit Android
+eas submit -p android --path path/to/your.aab
 ```
 
 ---
@@ -37,9 +55,7 @@ npm run deploy
 ## Technical Details
 
 ### EAS Update
-Your app is configured with `expo-updates`. Changes are pushed to the `production` branch and downloaded by apps running a compatible runtime version.
+Your app is configured with `expo-updates`. Changes are pushed to the `production` branch.
 
-### Build & Submit
-The `deploy` command runs:
-`eas build --platform all --profile production --auto-submit`
-This handles versioning automatically via `autoIncrement` settings.
+### Versioning
+Remember to increment `version` in `app.json` before a new Store Release.

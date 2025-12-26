@@ -31,7 +31,7 @@ function MainContent() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
-      <TextEditor bottomPadding={80} />
+      <TextEditor />
       <BottomNav />
     </KeyboardAvoidingView>
   );
@@ -45,6 +45,9 @@ export default function App() {
     'Lato-Thin': require('./assets/fonts/Lato-Thin.ttf'),
     'Lato-Black': require('./assets/fonts/Lato-Black.ttf'),
     'Lato-Italic': require('./assets/fonts/Lato-Italic.ttf'),
+    'Merriweather-Regular': require('./assets/fonts/Merriweather-Regular.ttf'),
+    'Merriweather-Bold': require('./assets/fonts/Merriweather-Bold.ttf'),
+    'SourceCodePro-Regular': require('./assets/fonts/SourceCodePro-Regular.ttf'),
   });
 
   const onLayoutRootView = useCallback(async () => {

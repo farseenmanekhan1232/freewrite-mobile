@@ -10,9 +10,9 @@ export const FontSelector: React.FC = () => {
 
   const fonts = [
     { name: 'Lato', family: 'Lato-Regular' },
-    { name: 'Arial', family: 'Arial' },
-    { name: 'System', family: 'System' },
-    { name: 'Serif', family: 'serif' },
+    { name: 'Serif', family: 'Merriweather-Regular' },
+    { name: 'Mono', family: 'SourceCodePro-Regular' },
+    { name: 'System', family: undefined }, // undefined uses system default
   ];
 
   const handleFontSizePress = () => {
@@ -22,7 +22,7 @@ export const FontSelector: React.FC = () => {
   };
 
   const handleRandomFont = () => {
-    const randomFonts = ['Lato-Regular', 'Arial', 'System', 'serif', 'monospace', 'Courier'];
+    const randomFonts = ['Lato-Regular', 'Merriweather-Regular', 'SourceCodePro-Regular', undefined];
     const randomFont = randomFonts[Math.floor(Math.random() * randomFonts.length)];
     updateSettings({ fontFamily: randomFont });
   };
