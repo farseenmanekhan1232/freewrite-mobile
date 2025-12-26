@@ -20,5 +20,11 @@
       },
       "channel": "production"
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {},
+      "android": {}
+    }
   }
 }
