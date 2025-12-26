@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -6,13 +6,31 @@ import {
   StyleSheet, 
   ScrollView,
   Animated,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
+import { 
+  MessageSquare, 
+  Delete, 
+  Plus, 
+  Sun, 
+  Moon, 
+  History,
+  MoreHorizontal,
+  ChevronDown,
+} from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { FontSelector } from './FontSelector';
 import { Timer } from './Timer';
 import { ChatMenu } from './ChatMenu';
 import { EntrySidebar } from './EntrySidebar';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export const BottomNav: React.FC = () => {
   const { theme, colorScheme, toggleColorScheme } = useTheme();
@@ -21,6 +39,7 @@ export const BottomNav: React.FC = () => {
   const [showChatMenu, setShowChatMenu] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [opacity] = useState(new Animated.Value(1));
 
   // Fade out nav when timer is running
@@ -32,8 +51,21 @@ export const BottomNav: React.FC = () => {
     }).start();
   }, [timerRunning, opacity]);
 
-  const Dot = () => (
-    <Text style={[styles.dot, { color: theme.textSecondary }]}>•</Text>
+  const toggleExpanded = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpanded(!expanded);
+  };
+
+  const iconSize = 22;
+
+  // Primary Action Button wrapper
+  const ActionButton = ({ onPress, children, active = false }: { onPress: () => void, children: React.ReactNode, active?: boolean }) => (
+    <TouchableOpacity 
+      onPress={onPress}
+      style={[styles.button, active && { backgroundColor: theme.entrySelected }]}
+    >
+      {children}
+    </TouchableOpacity>
   );
 
   return (
@@ -42,72 +74,91 @@ export const BottomNav: React.FC = () => {
         styles.container, 
         { 
           backgroundColor: theme.background,
+          borderColor: theme.border,
           opacity,
-        }
+        },
+        expanded && styles.containerExpanded
       ]}
     >
-      {/* Left section - Font controls */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.leftSection}
-        contentContainerStyle={styles.leftContent}
-      >
-        <FontSelector />
-      </ScrollView>
+      {/* Expanded Content (Settings) - Rendered first to animate height upwards logic if needed, 
+          but simpler to just stick it above or inside. 
+          Actually for a bottom bar, usually main row is at bottom, expanded content slides up.
+          Let's put Expanded Content first in DOM if using flex-col-reverse, or just use View ordering.
+      */}
+      
+      {expanded && (
+        <View style={[styles.expandedContent, { borderBottomColor: theme.border }]}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.fontSelectorContainer}
+          >
+            <FontSelector />
+          </ScrollView>
 
-      {/* Right section - Utilities */}
-      <View style={styles.rightSection}>
-        <Timer onTimerRunningChange={setTimerRunning} />
+          <View style={styles.secondaryActions}>
+            <TouchableOpacity 
+              onPress={toggleColorScheme}
+              style={[styles.secondaryButton]}
+            >
+              {colorScheme === 'light' ? (
+                <Moon size={20} color={theme.textSecondary} />
+              ) : (
+                <Sun size={20} color={theme.textSecondary} />
+              )}
+              <Text style={[styles.secondaryButtonText, { color: theme.textSecondary }]}>
+                {colorScheme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              </Text>
+            </TouchableOpacity>
 
-        <Dot />
+            <View style={styles.divider} />
 
-        <TouchableOpacity 
-          onPress={() => setShowChatMenu(true)}
-          style={styles.button}
-        >
-          <Text style={[styles.buttonText, { color: theme.textSecondary }]}>Chat</Text>
-        </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => updateSettings({ backspaceDisabled: !settings.backspaceDisabled })}
+              style={styles.secondaryButton}
+            >
+              <Delete 
+                size={20} 
+                color={settings.backspaceDisabled ? theme.textHover : theme.textSecondary} 
+              />
+              <Text style={[
+                styles.secondaryButtonText, 
+                { color: settings.backspaceDisabled ? theme.textHover : theme.textSecondary }
+              ]}>
+                {settings.backspaceDisabled ? 'Backspace Off' : 'Backspace On'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
-        <Dot />
+      {/* Main Bar (Primary Actions) */}
+      <View style={styles.mainBar}>
+        <View style={styles.timerWrapper}>
+          <Timer onTimerRunningChange={setTimerRunning} />
+        </View>
 
-        <TouchableOpacity 
-          onPress={() => updateSettings({ backspaceDisabled: !settings.backspaceDisabled })}
-          style={styles.button}
-        >
-          <Text style={[styles.buttonText, { color: theme.textSecondary }]}>
-            {settings.backspaceDisabled ? '⌫ Off' : '⌫ On'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.primaryActions}>
+          <ActionButton onPress={() => setShowChatMenu(true)}>
+            <MessageSquare size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+          </ActionButton>
 
-        <Dot />
+          <ActionButton onPress={createNewEntry}>
+             <Plus size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+          </ActionButton>
 
-        <TouchableOpacity 
-          onPress={createNewEntry}
-          style={styles.button}
-        >
-          <Text style={[styles.buttonText, { color: theme.textSecondary }]}>New</Text>
-        </TouchableOpacity>
+          <ActionButton onPress={() => setShowSidebar(true)}>
+            <History size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+          </ActionButton>
 
-        <Dot />
-
-        <TouchableOpacity 
-          onPress={toggleColorScheme}
-          style={styles.button}
-        >
-          <Text style={[styles.iconButton, { color: theme.textSecondary }]}>
-            {colorScheme === 'light' ? '🌙' : '☀️'}
-          </Text>
-        </TouchableOpacity>
-
-        <Dot />
-
-        <TouchableOpacity 
-          onPress={() => setShowSidebar(true)}
-          style={styles.button}
-        >
-          <Text style={[styles.iconButton, { color: theme.textSecondary }]}>🕐</Text>
-        </TouchableOpacity>
+          <ActionButton onPress={toggleExpanded} active={expanded}>
+            {expanded ? (
+              <ChevronDown size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+            ) : (
+              <MoreHorizontal size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+            )}
+          </ActionButton>
+        </View>
       </View>
 
       {/* Modals */}
@@ -123,37 +174,64 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingBottom: 20, // Safe area
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  containerExpanded: {
+    paddingBottom: 24,
+  },
+  mainBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: 24, // Safe area padding
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(128, 128, 128, 0.2)',
+    height: 60,
   },
-  leftSection: {
+  timerWrapper: {
     flex: 1,
   },
-  leftContent: {
-    alignItems: 'center',
-  },
-  rightSection: {
+  primaryActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 8,
+    gap: 8,
   },
   button: {
-    paddingHorizontal: 6,
-    paddingVertical: 4,
+    padding: 8,
+    borderRadius: 8,
   },
-  buttonText: {
-    fontSize: 13,
+  expandedContent: {
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  iconButton: {
-    fontSize: 16,
+  fontSelectorContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
-  dot: {
-    fontSize: 13,
-    paddingHorizontal: 4,
+  secondaryActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 8,
+  },
+  secondaryButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  divider: {
+    width: 1,
+    height: 20,
+    backgroundColor: 'rgba(128,128,128, 0.2)',
   },
 });

@@ -10,6 +10,7 @@ import {
   Alert,
   Share,
 } from 'react-native';
+import { X, Download, Trash2 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { Entry } from '../utils/storage';
@@ -84,13 +85,13 @@ export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) 
               onPress={() => handleExportPress(entry)}
               style={styles.actionButton}
             >
-              <Text style={[styles.actionIcon, { color: theme.textSecondary }]}>↓</Text>
+              <Download size={16} color={theme.textSecondary} />
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={() => handleDeletePress(entry)}
               style={styles.actionButton}
             >
-              <Text style={[styles.actionIcon, { color: '#FF6B6B' }]}>✕</Text>
+              <Trash2 size={16} color="#FF6B6B" />
             </TouchableOpacity>
           </View>
         </View>
@@ -116,7 +117,7 @@ export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) 
           <View style={[styles.header, { borderBottomColor: theme.border }]}>
             <Text style={[styles.headerTitle, { color: theme.text }]}>History</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={[styles.closeButtonText, { color: theme.textSecondary }]}>✕</Text>
+              <X size={24} color={theme.textSecondary} />
             </TouchableOpacity>
           </View>
 

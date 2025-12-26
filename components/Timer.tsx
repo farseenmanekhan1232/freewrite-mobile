@@ -6,6 +6,7 @@ import {
   StyleSheet,
   GestureResponderEvent,
 } from 'react-native';
+import { Minus, Plus } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTimer } from '../hooks/useTimer';
 
@@ -70,13 +71,13 @@ export const Timer: React.FC<TimerProps> = ({ onTimerRunningChange }) => {
           onPress={() => adjustTime('down')}
           style={styles.adjustButton}
         >
-          <Text style={[styles.adjustButtonText, { color: theme.textSecondary }]}>−</Text>
+          <Minus size={14} color={theme.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
         <TouchableOpacity 
           onPress={() => adjustTime('up')}
           style={styles.adjustButton}
         >
-          <Text style={[styles.adjustButtonText, { color: theme.textSecondary }]}>+</Text>
+          <Plus size={14} color={theme.textSecondary} strokeWidth={2} />
         </TouchableOpacity>
       </View>
     </View>

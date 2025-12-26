@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 
 export interface Entry {
   id: string;
@@ -118,7 +119,7 @@ export const generatePreviewText = (content: string): string => {
 // Helper to create a new entry
 export const createNewEntry = (): Entry => {
   const now = new Date();
-  const id = crypto.randomUUID();
+  const id = Crypto.randomUUID();
   
   return {
     id,

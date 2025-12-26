@@ -27,53 +27,54 @@ export const FontSelector: React.FC = () => {
     updateSettings({ fontFamily: randomFont });
   };
 
-  const Dot = () => (
-    <Text style={[styles.dot, { color: theme.textSecondary }]}>•</Text>
-  );
-
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      <TouchableOpacity onPress={handleFontSizePress} style={styles.button}>
-        <Text style={[styles.buttonText, { color: theme.textSecondary }]}>
+    <View style={styles.container}>
+      <TouchableOpacity 
+        onPress={handleFontSizePress} 
+        style={[styles.pill, { borderColor: theme.border, backgroundColor: theme.background }]}
+      >
+        <Text style={[styles.buttonText, { color: theme.text }]}>
           {settings.fontSize}px
         </Text>
       </TouchableOpacity>
 
-      <Dot />
+      <View style={styles.separator} />
 
-      {fonts.map((font, index) => (
-        <React.Fragment key={font.name}>
-          <TouchableOpacity 
-            onPress={() => updateSettings({ fontFamily: font.family })}
-            style={styles.button}
+      {fonts.map((font) => (
+        <TouchableOpacity 
+          key={font.name}
+          onPress={() => updateSettings({ fontFamily: font.family })}
+          style={[
+            styles.pill, 
+            settings.fontFamily === font.family && { backgroundColor: theme.entrySelected }
+          ]}
+        >
+          <Text 
+            style={[
+              styles.buttonText, 
+              { 
+                color: settings.fontFamily === font.family 
+                  ? theme.text 
+                  : theme.textSecondary 
+              }
+            ]}
           >
-            <Text 
-              style={[
-                styles.buttonText, 
-                { 
-                  color: settings.fontFamily === font.family 
-                    ? theme.textHover 
-                    : theme.textSecondary 
-                }
-              ]}
-            >
-              {font.name}
-            </Text>
-          </TouchableOpacity>
-          <Dot />
-        </React.Fragment>
+            {font.name}
+          </Text>
+        </TouchableOpacity>
       ))}
 
-      <TouchableOpacity onPress={handleRandomFont} style={styles.button}>
+      <View style={styles.separator} />
+
+      <TouchableOpacity 
+        onPress={handleRandomFont} 
+        style={[styles.pill, { borderColor: theme.border }]}
+      >
         <Text style={[styles.buttonText, { color: theme.textSecondary }]}>
           Random
         </Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -81,17 +82,23 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    gap: 8,
   },
-  button: {
-    paddingHorizontal: 6,
-    paddingVertical: 4,
+  pill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'transparent',
   },
   buttonText: {
     fontSize: 13,
+    fontWeight: '500',
   },
-  dot: {
-    fontSize: 13,
-    paddingHorizontal: 4,
+  separator: {
+    width: 1,
+    height: 16,
+    backgroundColor: 'rgba(128,128,128, 0.2)',
+    marginHorizontal: 4,
   },
 });
