@@ -9,7 +9,9 @@
     "web": "expo start --web",
     "deploy": "eas build --platform all --profile production --auto-submit",
     "push": "eas update --branch production",
-    "deploy:local": "./deploy-local.sh"
+    "deploy:local": "./deploy-local.sh",
+    "deploy:ios": "./deploy-local.sh i",
+    "deploy:android": "./deploy-local.sh a"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

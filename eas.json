@@ -16,7 +16,10 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "env": {
+          "GRADLE_OPTS": "-Xmx4g -XX:MaxMetaspaceSize=1g"
+        }
       },
       "channel": "production"
     }
