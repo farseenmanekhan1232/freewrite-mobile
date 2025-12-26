@@ -9,7 +9,7 @@
 ## Join Beta Testing
 
 *   📱 **iOS (TestFlight)**: [Join TestFlight](https://testflight.apple.com/join/WqC1Yak9)
-*   🤖 **Android (Internal Testing)**: [Join on Google Play](https://play.google.com/apps/internaltest/4700354324034823148)
+*   🤖 **Android (Internal Testing)**: [Join on Google Play](https://play.google.com/apps/testing/com.farseen.freewrite)
 
 **Original macOS version:** [github.com/farzaa/freewrite](https://github.com/farzaa/freewrite)
 
