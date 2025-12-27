@@ -4,9 +4,6 @@ import {
   StyleSheet, 
   View, 
   Text, 
-  NativeSyntheticEvent, 
-  TextInputChangeEventData,
-  Platform,
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -23,7 +20,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 68 }) =>
   const [localText, setLocalText] = useState(currentEntry?.content || '\n\n');
   const previousTextRef = useRef(localText);
   const inputRef = useRef<TextInput>(null);
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync with current entry when it changes
   useEffect(() => {
@@ -51,27 +47,9 @@ export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 68 }) =>
     previousTextRef.current = newText;
     setLocalText(newText);
 
-    // Debounce save
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    saveTimeoutRef.current = setTimeout(() => {
-      updateCurrentEntryContent(newText);
-    }, 500);
+    // Update context immediately - context handles debouncing
+    updateCurrentEntryContent(newText);
   }, [settings.backspaceDisabled, updateCurrentEntryContent]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-        // Save immediately on unmount
-        if (localText !== currentEntry?.content) {
-          updateCurrentEntryContent(localText);
-        }
-      }
-    };
-  }, [localText, currentEntry?.content, updateCurrentEntryContent]);
 
   const isEmpty = localText.trim().length === 0;
 

@@ -10,11 +10,11 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { X, Download, Trash2 } from 'lucide-react-native';
+import { X, Download, Trash2, ExternalLink } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
-import { Entry } from '../utils/storage';
+import { Entry, openEntriesFolder } from '../utils/storage';
 
 interface EntrySidebarProps {
   visible: boolean;
@@ -24,7 +24,15 @@ interface EntrySidebarProps {
 export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) => {
   const insets = useSafeAreaInsets();
   const { theme, colorScheme } = useTheme();
-  const { entries, currentEntry, selectEntry, deleteEntry } = useSettings();
+  const { entries, currentEntry, selectEntry, deleteEntry, entriesPath } = useSettings();
+
+  const handleOpenFolder = async () => {
+    try {
+      await openEntriesFolder();
+    } catch (error) {
+      console.log('Could not open folder:', error);
+    }
+  };
 
   const handleEntryPress = (entry: Entry) => {
     selectEntry(entry);
@@ -120,7 +128,19 @@ export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) 
           onPress={e => e.stopPropagation()}
         >
           <View style={[styles.header, { borderBottomColor: theme.border }]}>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>History</Text>
+            <TouchableOpacity 
+              style={styles.headerTitleContainer} 
+              onPress={handleOpenFolder}
+              activeOpacity={0.7}
+            >
+              <View style={styles.headerTitleRow}>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>History</Text>
+                <ExternalLink size={14} color={theme.textSecondary} style={styles.folderIcon} />
+              </View>
+              <Text style={[styles.headerPath, { color: theme.textSecondary }]} numberOfLines={1}>
+                {entriesPath}
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <X size={24} color={theme.textSecondary} />
             </TouchableOpacity>
@@ -166,6 +186,20 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  headerTitleContainer: {
+    flex: 1,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  folderIcon: {
+    marginLeft: 6,
+  },
+  headerPath: {
+    fontSize: 10,
+    marginTop: 2,
   },
   closeButton: {
     padding: 4,
