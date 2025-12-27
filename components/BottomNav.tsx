@@ -5,9 +5,7 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ScrollView,
-  LayoutAnimation,
   Platform,
-  UIManager,
 } from 'react-native';
 import { 
   MessageSquare, 
@@ -19,6 +17,8 @@ import {
   MoreHorizontal,
   ChevronDown,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { FontSelector } from './FontSelector';
@@ -26,12 +26,8 @@ import { Timer } from './Timer';
 import { ChatMenu } from './ChatMenu';
 import { EntrySidebar } from './EntrySidebar';
 
-// Enable LayoutAnimation on Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
 export const BottomNav: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const { theme, colorScheme, toggleColorScheme } = useTheme();
   const { settings, updateSettings, createNewEntry } = useSettings();
   
@@ -42,7 +38,6 @@ export const BottomNav: React.FC = () => {
 
 
   const toggleExpanded = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpanded(!expanded);
   };
 
@@ -59,24 +54,26 @@ export const BottomNav: React.FC = () => {
   );
 
   return (
-    <View 
+    <Animated.View 
+      layout={LinearTransition.duration(200)}
       style={[
         styles.container, 
         { 
           backgroundColor: theme.background,
           borderColor: theme.border,
+          paddingBottom: Math.max(insets.bottom, 8) + 8,
         },
         expanded && styles.containerExpanded
       ]}
     >
-      {/* Expanded Content (Settings) - Rendered first to animate height upwards logic if needed, 
-          but simpler to just stick it above or inside. 
-          Actually for a bottom bar, usually main row is at bottom, expanded content slides up.
-          Let's put Expanded Content first in DOM if using flex-col-reverse, or just use View ordering.
-      */}
+      {/* Expanded Content (Settings) */}
       
       {expanded && !timerRunning && (
-        <View style={[styles.expandedContent, { borderBottomColor: theme.border }]}>
+        <Animated.View 
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(150)}
+          style={[styles.expandedContent, { borderBottomColor: theme.border }]}
+        >
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -118,7 +115,7 @@ export const BottomNav: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       )}
 
       {/* Main Bar (Primary Actions) */}
@@ -160,14 +157,13 @@ export const BottomNav: React.FC = () => {
       {/* Modals */}
       <ChatMenu visible={showChatMenu} onClose={() => setShowChatMenu(false)} />
       <EntrySidebar visible={showSidebar} onClose={() => setShowSidebar(false)} />
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    paddingBottom: 20, // Safe area
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -175,7 +171,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   containerExpanded: {
-    paddingBottom: 24,
+    // Additional padding handled dynamically via inline style
   },
   mainBar: {
     flexDirection: 'row',

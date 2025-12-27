@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -26,14 +27,20 @@ function MainContent() {
   }
 
   return (
-    <KeyboardAvoidingView 
+    <SafeAreaView 
       style={[styles.container, { backgroundColor: theme.background }]} 
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      edges={['top']}
     >
-      <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
-      <TextEditor />
-      <BottomNav />
-    </KeyboardAvoidingView>
+      <KeyboardAvoidingView 
+        style={styles.container} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
+        <TextEditor />
+        <BottomNav />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -65,13 +72,15 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={styles.gestureRoot}>
-      <ThemeProvider>
-        <SettingsProvider>
-          <MainContent />
-        </SettingsProvider>
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.gestureRoot}>
+        <ThemeProvider>
+          <SettingsProvider>
+            <MainContent />
+          </SettingsProvider>
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

@@ -11,6 +11,7 @@ import {
   Share,
 } from 'react-native';
 import { X, Download, Trash2 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { Entry } from '../utils/storage';
@@ -21,6 +22,7 @@ interface EntrySidebarProps {
 }
 
 export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) => {
+  const insets = useSafeAreaInsets();
   const { theme, colorScheme } = useTheme();
   const { entries, currentEntry, selectEntry, deleteEntry } = useSettings();
 
@@ -110,7 +112,10 @@ export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) 
         <Pressable 
           style={[
             styles.sidebar, 
-            { backgroundColor: theme.background }
+            { 
+              backgroundColor: theme.background,
+              paddingBottom: insets.bottom,
+            }
           ]}
           onPress={e => e.stopPropagation()}
         >
@@ -128,7 +133,10 @@ export const EntrySidebar: React.FC<EntrySidebarProps> = ({ visible, onClose }) 
             ItemSeparatorComponent={() => (
               <View style={[styles.separator, { backgroundColor: theme.border }]} />
             )}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: Math.max(insets.bottom, 8) }
+            ]}
           />
         </Pressable>
       </Pressable>
