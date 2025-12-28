@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -14,7 +14,7 @@ import {
   Sun, 
   Moon, 
   History,
-  MoreHorizontal,
+  ChevronUp,
   ChevronDown,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,12 +29,25 @@ import { EntrySidebar } from './EntrySidebar';
 export const BottomNav: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { theme, colorScheme, toggleColorScheme } = useTheme();
-  const { settings, updateSettings, createNewEntry } = useSettings();
+  const { settings, updateSettings, createNewEntry, registerOnTypingStart } = useSettings();
   
   const [showChatMenu, setShowChatMenu] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  
+  // Ref to start timer from TextEditor typing
+  const startTimerRef = useRef<(() => void) | null>(null);
+  
+  // Register typing callback to auto-start timer
+  useEffect(() => {
+    registerOnTypingStart(() => {
+      startTimerRef.current?.();
+    });
+    return () => {
+      registerOnTypingStart(null);
+    };
+  }, [registerOnTypingStart]);
 
 
   const toggleExpanded = () => {
@@ -61,7 +74,7 @@ export const BottomNav: React.FC = () => {
         { 
           backgroundColor: theme.background,
           borderColor: theme.border,
-          paddingBottom: Math.max(insets.bottom, 8) + 8,
+          paddingBottom: Math.max(insets.bottom, 4),
         },
         expanded && styles.containerExpanded
       ]}
@@ -121,12 +134,10 @@ export const BottomNav: React.FC = () => {
       {/* Main Bar (Primary Actions) */}
       <View style={[styles.mainBar, timerRunning && styles.mainBarFocused]}>
         <View style={[styles.timerWrapper, timerRunning && styles.timerWrapperFocused]}>
-          <Timer onTimerRunningChange={setTimerRunning} />
-          {timerRunning && (
-            <Text style={[styles.tapToStopText, { color: theme.textSecondary }]}>
-              tap to stop
-            </Text>
-          )}
+          <Timer onTimerRunningChange={setTimerRunning} startTimerRef={startTimerRef} />
+          <Text style={[styles.tapHintText, { color: theme.textSecondary }]}>
+            {timerRunning ? 'tap to stop' : 'tap to start'}
+          </Text>
         </View>
 
         {!timerRunning && (
@@ -147,7 +158,7 @@ export const BottomNav: React.FC = () => {
               {expanded ? (
                 <ChevronDown size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
               ) : (
-                <MoreHorizontal size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+                <ChevronUp size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
               )}
             </ActionButton>
           </View>
@@ -178,8 +189,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    height: 60,
+    paddingVertical: 8,
+    minHeight: 52,
   },
   mainBarFocused: {
     justifyContent: 'flex-start',
@@ -191,7 +202,7 @@ const styles = StyleSheet.create({
     flex: 0,
     alignItems: 'flex-start',
   },
-  tapToStopText: {
+  tapHintText: {
     fontSize: 11,
     opacity: 0.6,
     marginTop: 2,

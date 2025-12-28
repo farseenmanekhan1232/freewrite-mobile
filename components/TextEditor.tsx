@@ -13,19 +13,21 @@ interface TextEditorProps {
   bottomPadding?: number;
 }
 
-export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 68 }) => {
+export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 56 }) => {
   const { theme } = useTheme();
-  const { settings, currentEntry, updateCurrentEntryContent } = useSettings();
+  const { settings, currentEntry, updateCurrentEntryContent, notifyTypingStart } = useSettings();
   const [placeholder, setPlaceholder] = useState(getRandomPlaceholder());
   const [localText, setLocalText] = useState(currentEntry?.content || '\n\n');
   const previousTextRef = useRef(localText);
   const inputRef = useRef<TextInput>(null);
+  const wasEmptyRef = useRef(true);
 
   // Sync with current entry when it changes
   useEffect(() => {
     if (currentEntry) {
       setLocalText(currentEntry.content);
       previousTextRef.current = currentEntry.content;
+      wasEmptyRef.current = currentEntry.content.trim().length === 0;
       setPlaceholder(getRandomPlaceholder());
     }
   }, [currentEntry?.id]);
@@ -47,9 +49,16 @@ export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 68 }) =>
     previousTextRef.current = newText;
     setLocalText(newText);
 
+    // Notify typing start if transitioning from empty to non-empty
+    const isNowEmpty = newText.trim().length === 0;
+    if (wasEmptyRef.current && !isNowEmpty) {
+      notifyTypingStart();
+    }
+    wasEmptyRef.current = isNowEmpty;
+
     // Update context immediately - context handles debouncing
     updateCurrentEntryContent(newText);
-  }, [settings.backspaceDisabled, updateCurrentEntryContent]);
+  }, [settings.backspaceDisabled, updateCurrentEntryContent, notifyTypingStart]);
 
   const isEmpty = localText.trim().length === 0;
 

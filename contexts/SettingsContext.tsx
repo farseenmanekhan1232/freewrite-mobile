@@ -29,6 +29,9 @@ interface SettingsContextType {
   deleteEntry: (entryId: string) => Promise<void>;
   isLoading: boolean;
   entriesPath: string;
+  // Typing callback for timer auto-start
+  registerOnTypingStart: (callback: (() => void) | null) => void;
+  notifyTypingStart: () => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -43,6 +46,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
   const currentEntryRef = useRef<Entry | null>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSaveRef = useRef<{ entryId: string; content: string } | null>(null);
+  const onTypingStartRef = useRef<(() => void) | null>(null);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -191,6 +195,14 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
     }, 500);
   }, []);
 
+  const registerOnTypingStart = useCallback((callback: (() => void) | null) => {
+    onTypingStartRef.current = callback;
+  }, []);
+
+  const notifyTypingStart = useCallback(() => {
+    onTypingStartRef.current?.();
+  }, []);
+
   const deleteEntryHandler = async (entryId: string) => {
     // Clear any pending save for this entry
     if (pendingSaveRef.current?.entryId === entryId) {
@@ -234,6 +246,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       deleteEntry: deleteEntryHandler,
       isLoading,
       entriesPath: getEntriesDirectory(),
+      registerOnTypingStart,
+      notifyTypingStart,
     }}>
       {children}
     </SettingsContext.Provider>

@@ -12,12 +12,29 @@ import { useTimer } from '../hooks/useTimer';
 
 interface TimerProps {
   onTimerRunningChange?: (isRunning: boolean) => void;
+  startTimerRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-export const Timer: React.FC<TimerProps> = ({ onTimerRunningChange }) => {
+export const Timer: React.FC<TimerProps> = ({ onTimerRunningChange, startTimerRef }) => {
   const { theme, colorScheme } = useTheme();
   const { formattedTime, isRunning, toggleTimer, resetTimer, adjustTime } = useTimer();
   const lastTapRef = useRef<number>(0);
+
+  // Expose startTimer function via ref
+  React.useEffect(() => {
+    if (startTimerRef) {
+      startTimerRef.current = () => {
+        if (!isRunning) {
+          toggleTimer();
+        }
+      };
+    }
+    return () => {
+      if (startTimerRef) {
+        startTimerRef.current = null;
+      }
+    };
+  }, [startTimerRef, isRunning, toggleTimer]);
 
   // Notify parent when running state changes
   React.useEffect(() => {
