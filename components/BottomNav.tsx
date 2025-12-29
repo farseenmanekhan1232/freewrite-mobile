@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { 
-  MessageSquare, 
+  Sparkles, 
   Delete, 
   Plus, 
   Sun, 
@@ -143,7 +143,7 @@ export const BottomNav: React.FC = () => {
         {!timerRunning && (
           <View style={styles.primaryActions}>
             <ActionButton onPress={() => setShowChatMenu(true)}>
-              <MessageSquare size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
+              <Sparkles size={iconSize} color={theme.textSecondary} strokeWidth={1.5} />
             </ActionButton>
 
             <ActionButton onPress={createNewEntry}>
