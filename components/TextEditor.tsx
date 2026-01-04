@@ -56,7 +56,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 56 }) =>
     }
     wasEmptyRef.current = isNowEmpty;
 
-    // Update context immediately - context handles debouncing
+    // Update context with debounced save - don't trigger on every keystroke
     updateCurrentEntryContent(newText);
   }, [settings.backspaceDisabled, updateCurrentEntryContent, notifyTypingStart]);
 

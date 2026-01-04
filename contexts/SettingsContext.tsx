@@ -161,14 +161,14 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
     const entry = currentEntryRef.current;
     if (!entry) return;
     
-    // Update state immediately for responsive UI
+    // Update currentEntry state immediately for responsive UI
+    // Don't update entries array here - it will be updated during debounced save
     const updatedEntry = { 
       ...entry, 
       content,
       previewText: generatePreviewText(content),
     };
     setCurrentEntry(updatedEntry);
-    setEntries(prev => prev.map(e => e.id === updatedEntry.id ? updatedEntry : e));
     
     // Store pending save info
     pendingSaveRef.current = { entryId: entry.id, content };
@@ -190,6 +190,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             previewText: generatePreviewText(saveContent),
           };
           await saveEntryToStorage(entryToSave);
+          // Update entries list after save completes
+          setEntries(prev => prev.map(e => e.id === entryToSave.id ? entryToSave : e));
         }
       }
     }, 500);

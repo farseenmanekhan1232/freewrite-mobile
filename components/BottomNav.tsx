@@ -175,11 +175,6 @@ export const BottomNav: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   containerExpanded: {
     // Additional padding handled dynamically via inline style
@@ -188,9 +183,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    minHeight: 52,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    minHeight: 48,
   },
   mainBarFocused: {
     justifyContent: 'flex-start',
