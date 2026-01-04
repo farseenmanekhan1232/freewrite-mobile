@@ -96,7 +96,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         if (loadedEntries.length === 0) {
           // First time user - create welcome entry
           const welcomeEntry = createNewEntryUtil();
-          welcomeEntry.content = '\n\n' + welcomeText;
+          welcomeEntry.content = welcomeText;
           welcomeEntry.previewText = generatePreviewText(welcomeEntry.content);
           await saveEntryToStorage(welcomeEntry);
           setEntries([welcomeEntry]);

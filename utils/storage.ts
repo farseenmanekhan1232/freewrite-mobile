@@ -96,10 +96,10 @@ export const loadEntryContent = async (filename: string): Promise<string> => {
         encoding: FileSystem.EncodingType.UTF8,
       });
     }
-    return '\n\n';
+    return '';
   } catch (error) {
     console.error('Error loading entry content:', error);
-    return '\n\n';
+    return '';
   }
 };
 
@@ -318,7 +318,7 @@ export const createNewEntry = (): Entry => {
     date: formatDisplayDate(now),
     filename: `[${id}]-[${formatFilenameDate(now)}].md`,
     previewText: '',
-    content: '\n\n',
+    content: '',
     createdAt: now.getTime(),
     lastModified: now.getTime(),
   };
