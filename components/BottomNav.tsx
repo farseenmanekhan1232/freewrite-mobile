@@ -74,7 +74,7 @@ export const BottomNav: React.FC = () => {
         { 
           backgroundColor: theme.background,
           borderColor: theme.border,
-          paddingBottom: Math.max(insets.bottom, 4),
+          paddingBottom: insets.bottom,
         },
         expanded && styles.containerExpanded
       ]}
@@ -212,12 +212,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   expandedContent: {
-    paddingVertical: 16,
+    paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   fontSelectorContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: 12,
+    marginBottom: 8,
   },
   secondaryActions: {
     flexDirection: 'row',
