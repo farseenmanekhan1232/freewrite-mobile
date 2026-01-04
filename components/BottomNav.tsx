@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingTop: 4,
     minHeight: 48,
   },
   mainBarFocused: {

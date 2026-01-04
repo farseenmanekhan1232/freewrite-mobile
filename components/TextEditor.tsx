@@ -3,24 +3,30 @@ import {
   TextInput, 
   StyleSheet, 
   View, 
-  Text, 
+  Text,
+  NativeSyntheticEvent,
+  TextInputSelectionChangeEventData,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useTheme } from '../contexts/ThemeContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getRandomPlaceholder } from '../constants/placeholders';
 
-interface TextEditorProps {
-  bottomPadding?: number;
-}
+// Height of BottomNav
+const BOTTOM_NAV_HEIGHT = 56;
 
-export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 56 }) => {
+export const TextEditor: React.FC = () => {
   const { theme } = useTheme();
   const { settings, currentEntry, updateCurrentEntryContent, notifyTypingStart } = useSettings();
   const [placeholder, setPlaceholder] = useState(getRandomPlaceholder());
-  const [localText, setLocalText] = useState(currentEntry?.content || '\n\n');
+  const [localText, setLocalText] = useState(currentEntry?.content || '');
   const previousTextRef = useRef(localText);
   const inputRef = useRef<TextInput>(null);
+  const scrollViewRef = useRef<any>(null);
   const wasEmptyRef = useRef(true);
+
+  // Calculate line height for cursor positioning
+  const lineHeight = settings.fontSize * 1.5;
 
   // Sync with current entry when it changes
   useEffect(() => {
@@ -33,79 +39,101 @@ export const TextEditor: React.FC<TextEditorProps> = ({ bottomPadding = 56 }) =>
   }, [currentEntry?.id]);
 
   const handleTextChange = useCallback((text: string) => {
-    // Ensure text always starts with \n\n
-    let newText = text;
-    if (!text.startsWith('\n\n')) {
-      newText = '\n\n' + text.replace(/^\n+/, '');
-    }
-
     // Handle backspace disable
-    if (settings.backspaceDisabled && newText.length < previousTextRef.current.length) {
+    if (settings.backspaceDisabled && text.length < previousTextRef.current.length) {
       // Text was deleted, restore previous text
       setLocalText(previousTextRef.current);
       return;
     }
 
-    previousTextRef.current = newText;
-    setLocalText(newText);
+    previousTextRef.current = text;
+    setLocalText(text);
 
     // Notify typing start if transitioning from empty to non-empty
-    const isNowEmpty = newText.trim().length === 0;
+    const isNowEmpty = text.trim().length === 0;
     if (wasEmptyRef.current && !isNowEmpty) {
       notifyTypingStart();
     }
     wasEmptyRef.current = isNowEmpty;
 
     // Update context with debounced save - don't trigger on every keystroke
-    updateCurrentEntryContent(newText);
+    updateCurrentEntryContent(text);
   }, [settings.backspaceDisabled, updateCurrentEntryContent, notifyTypingStart]);
+
+  // Handle selection change to scroll to cursor
+  const handleSelectionChange = useCallback((
+    event: NativeSyntheticEvent<TextInputSelectionChangeEventData>
+  ) => {
+    const { selection } = event.nativeEvent;
+    const cursorPosition = selection.end;
+    
+    // Count lines before cursor to estimate Y position
+    const textBeforeCursor = localText.substring(0, cursorPosition);
+    const linesBeforeCursor = textBeforeCursor.split('\n').length;
+    
+    // Calculate approximate Y position (16 is paddingTop)
+    const cursorY = 16 + (linesBeforeCursor * lineHeight);
+    
+    // Scroll to make cursor visible with some padding
+    scrollViewRef.current?.scrollTo({
+      y: Math.max(0, cursorY - 100),
+      animated: true,
+    });
+  }, [localText, lineHeight]);
 
   const isEmpty = localText.trim().length === 0;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.editorWrapper}>
-        <TextInput
-          ref={inputRef}
-          style={[
-            styles.textInput,
-            {
-              fontFamily: settings.fontFamily,
-              fontSize: settings.fontSize,
-              color: theme.text,
-              lineHeight: settings.fontSize * 1.5,
-              paddingBottom: bottomPadding,
-            },
-          ]}
-          value={localText}
-          onChangeText={handleTextChange}
-          multiline
-          textAlignVertical="top"
-          scrollEnabled
-          autoCapitalize="none"
-          autoCorrect={false}
-          spellCheck={false}
-          placeholder=""
-          placeholderTextColor={theme.placeholder}
-        />
-        
-        {isEmpty && (
-          <Text
+      <KeyboardAwareScrollView 
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        bottomOffset={BOTTOM_NAV_HEIGHT}
+      >
+        <View style={styles.editorWrapper}>
+          <TextInput
+            ref={inputRef}
             style={[
-              styles.placeholder,
+              styles.textInput,
               {
                 fontFamily: settings.fontFamily,
                 fontSize: settings.fontSize,
-                color: theme.placeholder,
-                lineHeight: settings.fontSize * 1.5,
+                color: theme.text,
+                lineHeight: lineHeight,
               },
             ]}
-            pointerEvents="none"
-          >
-            {placeholder}
-          </Text>
-        )}
-      </View>
+            value={localText}
+            onChangeText={handleTextChange}
+            onSelectionChange={handleSelectionChange}
+            multiline
+            textAlignVertical="top"
+            scrollEnabled={false}
+            autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
+            placeholder=""
+            placeholderTextColor={theme.placeholder}
+          />
+          
+          {isEmpty && (
+            <Text
+              style={[
+                styles.placeholder,
+                {
+                  fontFamily: settings.fontFamily,
+                  fontSize: settings.fontSize,
+                  color: theme.placeholder,
+                  lineHeight: lineHeight,
+                },
+              ]}
+              pointerEvents="none"
+            >
+              {placeholder}
+            </Text>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 };
@@ -117,13 +145,21 @@ const styles = StyleSheet.create({
     maxWidth: 650,
     alignSelf: 'center',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
   editorWrapper: {
     flex: 1,
     position: 'relative',
+    minHeight: '100%',
   },
   textInput: {
     flex: 1,
-    padding: 16,
+    paddingTop: 16,
+    paddingHorizontal: 16,
     textAlignVertical: 'top',
   },
   placeholder: {

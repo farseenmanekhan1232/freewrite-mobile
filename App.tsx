@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardProvider, KeyboardStickyView } from 'react-native-keyboard-controller';
 
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -31,14 +32,11 @@ function MainContent() {
       style={[styles.container, { backgroundColor: theme.background }]} 
       edges={['top']}
     >
-      <KeyboardAvoidingView 
-        style={styles.container} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
-        <TextEditor />
+      <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
+      <TextEditor />
+      <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
         <BottomNav />
-      </KeyboardAvoidingView>
+      </KeyboardStickyView>
     </SafeAreaView>
   );
 }
@@ -72,13 +70,15 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <GestureHandlerRootView style={styles.gestureRoot}>
-        <ThemeProvider>
-          <SettingsProvider>
-            <MainContent />
-          </SettingsProvider>
-        </ThemeProvider>
-      </GestureHandlerRootView>
+      <KeyboardProvider>
+        <GestureHandlerRootView style={styles.gestureRoot}>
+          <ThemeProvider>
+            <SettingsProvider>
+              <MainContent />
+            </SettingsProvider>
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }
@@ -96,3 +96,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
