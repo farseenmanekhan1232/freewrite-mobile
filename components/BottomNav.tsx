@@ -43,6 +43,7 @@ export const BottomNav: React.FC = () => {
   useEffect(() => {
     registerOnTypingStart(() => {
       startTimerRef.current?.();
+      setExpanded(false);
     });
     return () => {
       registerOnTypingStart(null);
@@ -74,7 +75,7 @@ export const BottomNav: React.FC = () => {
         { 
           backgroundColor: theme.background,
           borderColor: theme.border,
-          paddingBottom: insets.bottom,
+          paddingBottom: insets.bottom+10,
         },
         expanded && styles.containerExpanded
       ]}

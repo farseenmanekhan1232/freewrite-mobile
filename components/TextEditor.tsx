@@ -4,8 +4,6 @@ import {
   StyleSheet, 
   View, 
   Text,
-  NativeSyntheticEvent,
-  TextInputSelectionChangeEventData,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useTheme } from '../contexts/ThemeContext';
@@ -13,7 +11,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { getRandomPlaceholder } from '../constants/placeholders';
 
 // Height of BottomNav
-const BOTTOM_NAV_HEIGHT = 56;
+const BOTTOM_NAV_HEIGHT = 80;
 
 export const TextEditor: React.FC = () => {
   const { theme } = useTheme();
@@ -24,6 +22,7 @@ export const TextEditor: React.FC = () => {
   const inputRef = useRef<TextInput>(null);
   const scrollViewRef = useRef<any>(null);
   const wasEmptyRef = useRef(true);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Calculate line height for cursor positioning
   const lineHeight = settings.fontSize * 1.5;
@@ -49,37 +48,23 @@ export const TextEditor: React.FC = () => {
     previousTextRef.current = text;
     setLocalText(text);
 
-    // Notify typing start if transitioning from empty to non-empty
-    const isNowEmpty = text.trim().length === 0;
-    if (wasEmptyRef.current && !isNowEmpty) {
-      notifyTypingStart();
-    }
-    wasEmptyRef.current = isNowEmpty;
+    // Notify typing start to ensure timer is running and menus are collapsed
+    notifyTypingStart();
+    
+    wasEmptyRef.current = text.trim().length === 0;
 
     // Update context with debounced save - don't trigger on every keystroke
-    updateCurrentEntryContent(text);
+    if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+        updateCurrentEntryContent(text);
+    }, 500);
   }, [settings.backspaceDisabled, updateCurrentEntryContent, notifyTypingStart]);
 
-  // Handle selection change to scroll to cursor
-  const handleSelectionChange = useCallback((
-    event: NativeSyntheticEvent<TextInputSelectionChangeEventData>
-  ) => {
-    const { selection } = event.nativeEvent;
-    const cursorPosition = selection.end;
-    
-    // Count lines before cursor to estimate Y position
-    const textBeforeCursor = localText.substring(0, cursorPosition);
-    const linesBeforeCursor = textBeforeCursor.split('\n').length;
-    
-    // Calculate approximate Y position (16 is paddingTop)
-    const cursorY = 16 + (linesBeforeCursor * lineHeight);
-    
-    // Scroll to make cursor visible with some padding
-    scrollViewRef.current?.scrollTo({
-      y: Math.max(0, cursorY - 100),
-      animated: true,
-    });
-  }, [localText, lineHeight]);
+
+
 
   const isEmpty = localText.trim().length === 0;
 
@@ -105,7 +90,7 @@ export const TextEditor: React.FC = () => {
             ]}
             value={localText}
             onChangeText={handleTextChange}
-            onSelectionChange={handleSelectionChange}
+
             multiline
             textAlignVertical="top"
             scrollEnabled={false}
