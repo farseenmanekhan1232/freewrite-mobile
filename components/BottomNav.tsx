@@ -148,6 +148,7 @@ export const BottomNav: React.FC = () => {
             horizontal 
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.fontSelectorContainer}
+            keyboardShouldPersistTaps="always"
           >
             <FontSelector />
           </ScrollView>
