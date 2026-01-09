@@ -35,20 +35,49 @@ export const BottomNav: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   
   // Ref to start timer from TextEditor typing
   const startTimerRef = useRef<(() => void) | null>(null);
+  const minimizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startMinimizeTimer = () => {
+    if (minimizeTimeoutRef.current) {
+        clearTimeout(minimizeTimeoutRef.current);
+    }
+    minimizeTimeoutRef.current = setTimeout(() => {
+        setIsMinimized(true);
+    }, 1500);
+  };
+
+  const cancelMinimizeTimer = () => {
+    if (minimizeTimeoutRef.current) {
+        clearTimeout(minimizeTimeoutRef.current);
+    }
+  };
   
-  // Register typing callback to auto-start timer
+  // Register typing callback to auto-start timer and minimize nav
   useEffect(() => {
     registerOnTypingStart(() => {
       startTimerRef.current?.();
       setExpanded(false);
+      startMinimizeTimer();
     });
     return () => {
       registerOnTypingStart(null);
+      cancelMinimizeTimer();
     };
   }, [registerOnTypingStart]);
+
+  // Minimize when timer starts
+  useEffect(() => {
+    if (timerRunning) {
+      startMinimizeTimer();
+    } else {
+        cancelMinimizeTimer();
+        setIsMinimized(false);
+    }
+  }, [timerRunning]);
 
 
   const toggleExpanded = () => {
@@ -68,18 +97,45 @@ export const BottomNav: React.FC = () => {
   );
 
   return (
-    <Animated.View 
+    <Animated.View
       layout={LinearTransition.duration(200)}
       style={[
-        styles.container, 
-        { 
-          backgroundColor: theme.background,
-          borderColor: theme.border,
+        styles.container,
+        {
+          backgroundColor: isMinimized ? 'transparent' : theme.background,
+          borderColor: isMinimized ? 'transparent' : theme.border,
+          borderTopWidth: isMinimized ? 0 : StyleSheet.hairlineWidth,
           paddingBottom: insets.bottom+10,
         },
-        expanded && styles.containerExpanded
+        expanded && !isMinimized && styles.containerExpanded
       ]}
     >
+      {/* Minimized State Trigger */}
+      {isMinimized && (
+        <Animated.View 
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(300)}
+            style={styles.minimizedContainer}
+        >
+            <TouchableOpacity 
+            onPress={() => {
+                setIsMinimized(false);
+                cancelMinimizeTimer();
+            }}
+            style={[styles.minimizedTab, { backgroundColor: theme.background, borderColor: theme.border }]}
+            >
+            <ChevronUp size={20} color={theme.textSecondary} />
+            </TouchableOpacity>
+        </Animated.View>
+      )}
+
+      {/* Main Content - Hidden when minimized but kept mounted for Timer state */}
+      <Animated.View 
+        style={[
+            isMinimized ? { height: 0, opacity: 0, overflow: 'hidden' } : { opacity: 1 },
+        ]}
+      >
+      
       {/* Expanded Content (Settings) */}
       
       {expanded && !timerRunning && (
@@ -165,6 +221,7 @@ export const BottomNav: React.FC = () => {
           </View>
         )}
       </View>
+      </Animated.View>
 
       {/* Modals */}
       <ChatMenu visible={showChatMenu} onClose={() => setShowChatMenu(false)} />
@@ -240,5 +297,28 @@ const styles = StyleSheet.create({
     width: 1,
     height: 20,
     backgroundColor: 'rgba(128,128,128, 0.2)',
+  },
+  minimizedContainer: {
+    alignItems: 'flex-start', // Align to left
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingLeft: 16, // Add left padding
+  },
+  minimizedTab: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 16, // Reduced button width (padding)
+    borderRadius: 20,
+    borderWidth: 1,
+    // Add shadow
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
 });
