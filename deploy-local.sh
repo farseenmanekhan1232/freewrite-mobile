@@ -21,6 +21,10 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
 # Increase Gradle memory to prevent OutOfMemoryError
 export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=1g"
 
+# Increase Fastlane timeout for xcodebuild -showBuildSettings (prevents iOS build timeouts)
+export FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT=30
+export FASTLANE_XCODEBUILD_SETTINGS_RETRIES=6
+
 echo "☕ Using Java: $JAVA_HOME"
 echo "📊 Gradle memory: $GRADLE_OPTS"
 

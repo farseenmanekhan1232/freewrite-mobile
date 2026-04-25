@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useColorScheme as useDeviceColorScheme } from 'react-native';
+import { useColorScheme as useDeviceColorScheme, Appearance } from 'react-native';
 import { colors } from '../constants/theme';
 import { getSettings, saveSettings } from '../utils/storage';
 
@@ -33,6 +33,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const settings = await getSettings();
     await saveSettings({ ...settings, colorScheme: newScheme });
   };
+
+  useEffect(() => {
+    if (isLoaded) {
+      Appearance.setColorScheme(colorScheme);
+    }
+  }, [colorScheme, isLoaded]);
 
   const theme = colors[colorScheme];
 
