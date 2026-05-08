@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://testflight.apple.com/join/WqC1Yak9">
-    <img src="https://img.shields.io/badge/iOS-TestFlight-blue?logo=apple" alt="iOS TestFlight" />
+  <a href="https://apps.apple.com/in/app/freewrite/id6757076735">
+    <img src="https://img.shields.io/badge/iOS-App%20Store-blue?logo=apple" alt="iOS App Store" />
   </a>
-  <a href="https://play.google.com/apps/testing/com.farseen.freewrite">
+  <a href="https://play.google.com/store/apps/details?id=com.farseen.freewrite&hl=en_IN&pli=1">
     <img src="https://img.shields.io/badge/Android-Play%20Store-green?logo=googleplay" alt="Android Play Store" />
   </a>
 </p>
@@ -37,16 +37,8 @@ Freewrite is a minimalist writing app designed to get you into a flow state. Set
 
 | Platform | Link |
 |----------|------|
-| **iOS** | [Join TestFlight](https://testflight.apple.com/join/WqC1Yak9) |
-| **Android** | [Join Google Group](https://groups.google.com/g/freewrite-mobile) first, then [Get on Play Store](https://play.google.com/apps/testing/com.farseen.freewrite) |
-
-> Full App Store & Play Store release coming soon.
-
----
-
-## Demo
-
-https://github.com/user-attachments/assets/4347de51-03c4-449b-85d3-00ee6318b99c
+| **iOS** | [Download on App Store](https://apps.apple.com/in/app/freewrite/id6757076735) |
+| **Android** | [Download on Play Store](https://play.google.com/store/apps/details?id=com.farseen.freewrite&hl=en_IN&pli=1) |
 
 ---
 
